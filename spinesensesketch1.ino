@@ -18,10 +18,26 @@ const int ledPin3 = 11; // pin of the third sensor's led
 const int buzzerPin = 12; //pin of the buzzer
 const int buttonPin = 2; //pin of the callibration button
 
-const int sensorBendValue = 2; //maximum amount before the sensor recognizes it as a bad posture
+
+
+//Adjust these constants to demo
+const int sensor1BendValue = 20; //maximum amount before the first sensor recognizes it as a bad posture
+const int sensor2BendValue = 20; //maximum amount before the second sensor recognizes it as a bad posture
+const int sensor3BendValue = 20; //maximum amount before the third sensor recognizes it as a bad posture
 const long warningTime = 5000; //number of milliseconds the led light is one before causing a warning
+const int lowerRangeSensor1 = 400;  // the lower range of the raw sensor data
+const int upperRangeSensor1 = 900;  // the upper range of the raw sensor data
+const int lowerRangeSensor2 = 400;  // the lower range of the raw sensor data
+const int upperRangeSensor2 = 900;  // the upper range of the raw sensor data
+const int lowerRangeSensor3 = 400;  // the lower range of the raw sensor data
+const int upperRangeSensor3 = 900;  // the upper range of the raw sensor data
+
+
 
 //global variables
+int sensorRaw1 = 0;
+int sensorRaw2 = 0;
+int sensorRaw3 = 0;
 int sensorValue1 = 0;     // value read from the first sensor
 int sensorValue2 = 0;     // value read from the second sensor
 int sensorValue3 = 0;     // value read from the third sensor
@@ -49,10 +65,14 @@ void setup() {
 
 void loop() {
   // read the sensor values (flex and button):
-  sensorValue1 = analogRead(analogSensor1);  
-  sensorValue2 = analogRead(analogSensor2);            
-  sensorValue3 = analogRead(analogSensor3);              
+  sensorRaw1 = analogRead(analogSensor1);  
+  sensorRaw2 = analogRead(analogSensor2);            
+  sensorRaw3 = analogRead(analogSensor3);              
   buttonState = digitalRead(buttonPin);
+  
+  sensorValue1 = map(sensorRaw1, lowerRangeSensor1, upperRangeSensor1, 0, 100);
+  sensorValue2 = map(sensorRaw2, lowerRangeSensor2, upperRangeSensor2, 0, 100);
+  sensorValue3 = map(sensorRaw3, lowerRangeSensor3, upperRangeSensor3, 0, 100);
   
   //update the current time
   currentMillis = millis();
@@ -67,7 +87,7 @@ void loop() {
   
   //default the buzzer state to off
   buzzerState = LOW;
-  if (sensorValue1 < callibrationSensor1 - sensorBendValue) { //checks for bad posture
+  if (sensorValue1 - callibrationSensor1 > sensor1BendValue) { //checks for bad posture
       ledState1 = HIGH; //turns the coorisponding led on
       if(currentMillis - previousMillis >= warningTime) { //checks to see if warning time has passed
         buzzerState = HIGH;    //turn on the buzzer after warning time has passed
@@ -76,7 +96,7 @@ void loop() {
       ledState1 = LOW;  //turn the led off
   }
   
-    if (sensorValue2 < callibrationSensor2 - sensorBendValue) { //checks for bad posture
+    if (sensorValue2 - callibrationSensor2 > sensor2BendValue) { //checks for bad posture
         ledState2 = HIGH; //turns the coorisponding led on
         if(currentMillis - previousMillis >= warningTime) { //checks to see if warning time has passed
           buzzerState = HIGH;    //turn on the buzzer after warning time has passed
@@ -85,7 +105,7 @@ void loop() {
         ledState2 = LOW;  //turn the led off
     }
   
-    if (sensorValue3 < callibrationSensor3 - sensorBendValue) { //checks for bad posture
+    if (sensorValue3 - callibrationSensor3 > sensor3BendValue) { //checks for bad posture
         ledState3 = HIGH; //turns the coorisponding led on
         if(currentMillis - previousMillis >= warningTime) { //checks to see if warning time has passed
           buzzerState = HIGH;    //turn on the buzzer after warning time has passed
@@ -106,8 +126,8 @@ void loop() {
      digitalWrite(buzzerPin, buzzerState);   
 
     // print sensor data
-    //Serial.print("sensor = " );                       
-    //Serial.println(sensorValue3);      
+    Serial.print("sensor = " );                       
+    Serial.println(sensorValue3);      
 
     // wait 50 milliseconds before the next loop
     delay(50);                     
